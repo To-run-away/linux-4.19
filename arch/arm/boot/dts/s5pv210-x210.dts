@@ -1,0 +1,301 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Samsung's S5PV210 SoC device tree source
+ *
+ * Copyright (c) 2013-2014 Samsung Electronics, Co. Ltd.
+ *
+ * Mateusz Krawczuk <m.krawczuk@partner.samsung.com>
+ * Tomasz Figa <t.figa@samsung.com>
+ *
+ * Board device tree source for YIC System SMDV210 board.
+ *
+ * NOTE: This file is completely based on original board file for mach-smdkv210
+ * available in Linux 3.15 and intends to provide equivalent level of hardware
+ * support. Due to lack of hardware, _no_ testing has been performed.
+ */
+
+/dts-v1/;
+#include <dt-bindings/input/input.h>
+#include "s5pv210.dtsi"
+
+/ {
+	model = "YIC System SMDKV210 based on S5PV210";
+	compatible = "yic,smdkv210", "samsung,s5pv210";
+
+	chosen {
+		bootargs = "console=ttySAC2,115200n8 root=/dev/nfs nfsroot=192.168.0.101:/home/run/work/rootfs/rootfs_3.16.57 ip=192.1    68.0.20 init=/linuxrci earlyprintk";
+	};
+
+	memory@30000000 {
+		device_type = "memory";
+		reg = <0x30000000 0x20000000>;
+	};
+
+	ethernet@88000000 {
+        compatible = "davicom,dm9000";
+        reg = <0x88000000 0x2 0x88000004 0x2>;
+        interrupt-parent = <&gph1>;
+        interrupts = <2 4>;
+        local-mac-address = [00 00 de ad be ef];
+        davicom,no-eeprom;
+        clocks = <&clocks CLK_SROMC>;
+        clock-names = "sromc";
+    };  
+	backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 5000000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <6>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwm3_out>;
+	};
+
+	buttons {
+		compatible = "x210_buttons";
+	/*	interrupts-extended = <&gph2 0 3>, <&gph2 1 3>, <&gph2 2 3>, <&gph2 3 3>; */
+		interrupt-parent = <&gph2>;
+        interrupts = <0 3>;
+		eint-pin = <&gph2 0 0>;
+	};
+
+    lcd_sys_oe: lcd-sys-oe {
+        samsung,pins = "gpf3-5";
+        samsung,pin-function = <EXYNOS_PIN_FUNC_3>;
+        samsung,pin-pud = <S3C64XX_PIN_PULL_NONE>;
+        samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+    };  
+
+
+	fb@f8000000 {
+		compatible = "samsung,s5pv210-fb";
+		interrupt-parent = <&vic2>;
+		reg = <0xf8000000 0x20000>;
+		interrupt-names =  "fifo", "vsync", "lcd_sys";
+		interrupts = <0>, <1>, <2>;
+		clocks = <&clocks SCLK_FIMD>, <&clocks CLK_FIMD>;
+		clock-names = "sclk_fimd", "fimd";
+		status = "okay";
+		pinctrl-0 = <&lcd_data24 &lcd_clk &lcd_ctrl &lcd_sys_oe >;	
+		pinctrl-names = "default";
+
+		/* 1024x600@60Hz */
+		clock-frequency = <52106200>;
+		xres = /bits/ 16 <1024>;
+		yres = /bits/ 16 <600>;
+		max_bpp = /bits/ 16 <32>;
+		default_bpp = /bits/ 16 <24>;
+		right_margin = <160>;
+		left_margin = <140>;
+		hsync-len = <20>;
+		upper_margin = <20>;
+		lower_margin = <12>;
+		vsync-len = <3>;
+		hsync-active = <1>;
+		vsync-active = <1>;
+		de-active = <0>;
+		pixelclk-active = <1>;
+		vidout = <0>;
+		pnrmode = <0>;
+
+	};  
+
+
+
+
+};
+
+&xusbxti {
+	clock-frequency = <24000000>;
+};
+/*
+&keypad {
+	linux,input-no-autorepeat;
+	wakeup-source;
+	samsung,keypad-num-rows = <8>;
+	samsung,keypad-num-columns = <8>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&keypad_row0>, <&keypad_row1>, <&keypad_row2>,
+			<&keypad_row3>, <&keypad_row4>, <&keypad_row5>,
+			<&keypad_row6>, <&keypad_row7>,
+			<&keypad_col0>, <&keypad_col1>, <&keypad_col2>,
+			<&keypad_col3>, <&keypad_col4>, <&keypad_col5>,
+			<&keypad_col6>, <&keypad_col7>;
+	status = "okay";
+
+	key_1 {
+		keypad,row = <0>;
+		keypad,column = <3>;
+		linux,code = <KEY_1>;
+	};
+
+	key_2 {
+		keypad,row = <0>;
+		keypad,column = <4>;
+		linux,code = <KEY_2>;
+	};
+
+	key_3 {
+		keypad,row = <0>;
+		keypad,column = <5>;
+		linux,code = <KEY_3>;
+	};
+
+	key_4 {
+		keypad,row = <0>;
+		keypad,column = <6>;
+		linux,code = <KEY_4>;
+	};
+
+	key_5 {
+		keypad,row = <0
+		>;
+		keypad,column = <7>;
+		linux,code = <KEY_5>;
+	};
+
+	key_6 {
+		keypad,row = <1>;
+		keypad,column = <3>;
+		linux,code = <KEY_A>;
+	};
+	key_7 {
+		keypad,row = <1>;
+		keypad,column = <4>;
+		linux,code = <KEY_B>;
+	};
+
+	key_8 {
+		keypad,row = <1>;
+		keypad,column = <5>;
+		linux,code = <KEY_C>;
+	};
+
+	key_9 {
+		keypad,row = <1>;
+		keypad,column = <6>;
+		linux,code = <KEY_D>;
+	};
+
+	key_10 {
+		keypad,row = <1>;
+		keypad,column = <7>;
+		linux,code = <KEY_E>;
+	};
+};
+*/
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&rtc {
+	status = "okay";
+};
+
+&sdhci0 {
+	bus-width = <4>;
+	pinctrl-0 = <&sd0_clk &sd0_cmd &sd0_cd &sd0_bus1 &sd0_bus4>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&sdhci1 {
+	bus-width = <4>;
+	pinctrl-0 = <&sd1_clk &sd1_cmd &sd1_cd &sd1_bus1 &sd1_bus4>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&sdhci2 {
+	bus-width = <4>;
+	pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus1 &sd2_bus4>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&sdhci3 {
+	bus-width = <4>;
+	pinctrl-0 = <&sd3_clk &sd3_cmd &sd3_cd &sd3_bus1 &sd3_bus4>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&hsotg {
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
+};
+
+&ohci {
+	status = "okay";
+};
+
+&ehci {
+	status = "okay";
+};
+/*
+&fimd {
+	pinctrl-0 = <&lcd_clk &lcd_data24>; 
+	pinctrl-names = "default"; 
+	status = "okay";
+
+	display-timings {
+		native-mode = <&timing0>;
+
+		timing0: timing {
+			clock-frequency = <52106200>;
+			hactive = <1024>;
+			vactive = <600>;
+			hfront-porch = <160>;
+			hback-porch = <140>;
+			hsync-len = <20>;
+			vback-porch = <20>;
+			vfront-porch = <12>;
+			vsync-len = <3>;
+			hsync-active = <1>;
+			vsync-active = <1>;
+			de-active = <0>;
+			pixelclk-active = <1>;
+		};
+	};
+};
+*/
+/*
+&pwm {
+	pinctrl-0 = <&pwm0_out &pwm2_out>;
+	pinctrl-names = "default";
+	samsung,pwm-outputs = <0>,< 2>;
+	status = "okay";
+};
+*/
+
+&i2c0 {
+	status = "okay";
+
+	audio-codec@1b {
+		compatible = "wlf,wm8580";
+		reg = <0x1b>;
+	};
+
+	eeprom@50 {
+		compatible = "atmel,24c08";
+		reg = <0x50>;
+	};
+};
+
+&i2s0 {
+	status = "okay";
+};
