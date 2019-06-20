@@ -839,4 +839,12 @@
 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
 	};
 
+    lcd_sys_oe: lcd-sys-oe {
+        samsung,pins = "gpf3-5";
+        samsung,pin-function = <EXYNOS_PIN_FUNC_3>;
+        samsung,pin-pud = <S3C64XX_PIN_PULL_NONE>;
+        samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+    };  
+
+
 };

@@ -23,7 +23,7 @@
 	compatible = "yic,smdkv210", "samsung,s5pv210";
 
 	chosen {
-		bootargs = "console=ttySAC2,115200n8 root=/dev/nfs nfsroot=192.168.0.101:/home/run/work/rootfs/rootfs_3.16.57 ip=192.1    68.0.20 init=/linuxrci earlyprintk";
+		bootargs = "console=ttySAC2,115200n8 root=/dev/nfs rw nfsroot=192.168.0.101:/home/run/work/rootfs/rootfs_3.16.57  ip=192.168.0.20 init=/linuxrc user_debug=0x1f reboot=s  earlyprintk";
 	};
 
 	memory@30000000 {
@@ -53,17 +53,10 @@
 	buttons {
 		compatible = "x210_buttons";
 	/*	interrupts-extended = <&gph2 0 3>, <&gph2 1 3>, <&gph2 2 3>, <&gph2 3 3>; */
-		interrupt-parent = <&gph2>;
+		interrupt-parent = <&gph2>; 
         interrupts = <0 3>;
 		eint-pin = <&gph2 0 0>;
 	};
-
-    lcd_sys_oe: lcd-sys-oe {
-        samsung,pins = "gpf3-5";
-        samsung,pin-function = <EXYNOS_PIN_FUNC_3>;
-        samsung,pin-pud = <S3C64XX_PIN_PULL_NONE>;
-        samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
-    };  
 
 
 	fb@f8000000 {
@@ -75,7 +68,8 @@
 		clocks = <&clocks SCLK_FIMD>, <&clocks CLK_FIMD>;
 		clock-names = "sclk_fimd", "fimd";
 		status = "okay";
-		pinctrl-0 = <&lcd_data24 &lcd_clk &lcd_ctrl &lcd_sys_oe >;	
+		pinctrl-0 = <&lcd_data24 &lcd_clk  &lcd_sys_oe >;	
+		/* pinctrl-0 = <&lcd_data24 &lcd_clk &lcd_ctrl &lcd_sys_oe >;	 */
 		pinctrl-names = "default";
 
 		/* 1024x600@60Hz */
@@ -273,14 +267,14 @@
 	};
 };
 */
-/*
+
 &pwm {
-	pinctrl-0 = <&pwm0_out &pwm2_out>;
+	pinctrl-0 = <&pwm0_out &pwm3_out>;
 	pinctrl-names = "default";
-	samsung,pwm-outputs = <0>,< 2>;
+	samsung,pwm-outputs = <0>,< 3>;
 	status = "okay";
 };
-*/
+
 
 &i2c0 {
 	status = "okay";
@@ -289,12 +283,33 @@
 		compatible = "wlf,wm8580";
 		reg = <0x1b>;
 	};
-
 	eeprom@50 {
-		compatible = "atmel,24c08";
+		compatible = "atmel,24c02";
 		reg = <0x50>;
 	};
 };
+
+&i2c1 {
+	status = "okay";
+
+	gslX680@40 {
+		compatible = "GSLX680";
+		reg = <0x40>;
+		screen_max_x = <1024>;
+		screen_max_y = <600>;
+/*		interrupt-parent = <&gph0>;
+		interrupts = <7 1>;		*//* gph0的中断7,上升沿触发 */
+		touch-gpio = <&gph0 7 1>;
+		reset-gpio = <&gph0 6 1>; /* gph0的6口,默认高电平,低电平睡眠 */
+	};
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+
+
 
 &i2s0 {
 	status = "okay";
